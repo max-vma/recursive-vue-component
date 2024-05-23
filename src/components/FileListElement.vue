@@ -1,32 +1,71 @@
 <template>
-	<div class="file-list-element">
-		<component :is="getComponent(item.type)" :item="item" />
-	</div>
+  <div class="file-list-element">
+    <div
+      class="file-list-element__inner"
+      ref="nameElement"
+      @input="onChangeName">
+      {{ item.name }}
+    </div>
+    <div class="file-list-element__actions">
+      <div
+        class="file-list-element__action"
+        @click="onClickEditItem">
+        Изменить
+      </div>
+      <div
+        class="file-list-element__action"
+        @click="onClickRemoveItem">
+        Удалить
+      </div>
+    </div>
+  </div>
+  <div
+    class="file-list-element__dir-element"
+    v-if="item.elements">
+    <file-list-element
+      :item="innerItem"
+      v-for="innerItem in item.elements" />
+  </div>
 </template>
 
 <script lang="ts" setup>
+import { onMounted, ref } from 'vue'
 import { IElement } from '../types/Element'
-import { ElementTypes } from '../types/ElementTypes'
-import Directory from './Directory.vue'
-import File from './File.vue'
 
-interface PropTypes {
-	item: IElement
-}
-const props = defineProps<PropTypes>()
+const emit = defineEmits(['remove'])
 
-const getComponent = (type: ElementTypes) => {
-	return {
-		[ElementTypes.DIRECTORY]: Directory,
-		[ElementTypes.FILE]: File,
-	}[type]
+const nameElement = ref()
+
+const onClickEditItem = () => {
+  const el = nameElement.value as HTMLElement
+  el.setAttribute('contenteditable', 'true')
+  el.focus()
 }
+
+const onClickRemoveItem = () => {
+  emit('remove', props.item)
+}
+
+const onChangeName = (e: any) => {
+  props.item.name = e.target.innerText
+}
+
+interface Props {
+  item: IElement
+}
+const props = defineProps<Props>()
 </script>
 
-<style>
+<style lang="scss">
 .file-list-element {
-	display: flex;
-	flex-direction: column;
-	padding-left: 8px;
+  display: flex;
+  gap: 16px;
+  &__dir-element {
+    padding-left: 8px;
+  }
+  &__actions {
+    display: flex;
+    gap: 8px;
+  }
 }
 </style>
