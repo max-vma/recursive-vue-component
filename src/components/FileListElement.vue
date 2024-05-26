@@ -14,7 +14,7 @@
       </div>
       <div
         class="file-list-element__action"
-        @click="onClickRemoveItem">
+        @click="() => onClickRemoveItem(item.id)">
         Удалить
       </div>
     </div>
@@ -22,14 +22,17 @@
   <div
     class="file-list-element__dir-element"
     v-if="item.elements">
-    <file-list-element
-      :item="innerItem"
-      v-for="innerItem in item.elements" />
+    <template v-for="innerItem in item.elements">
+      <file-list-element
+        @remove="onClickRemoveItem"
+        :item="innerItem"
+        v-if="!innerItem.deleted" />
+    </template>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { IElement } from '../types/Element'
 
 const emit = defineEmits(['remove'])
@@ -42,8 +45,8 @@ const onClickEditItem = () => {
   el.focus()
 }
 
-const onClickRemoveItem = () => {
-  emit('remove', props.item)
+const onClickRemoveItem = (itemId: string) => {
+  emit('remove', itemId)
 }
 
 const onChangeName = (e: any) => {
